@@ -1,91 +1,79 @@
-import { StatusBar } from "expo-status-bar";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import { Passkey } from "react-native-passkey";
-import { api } from "./api";
-import { useState } from "react";
-import { registrationOptionMapping } from "./utils";
 
+import '@walletconnect/react-native-compat';
+import { WagmiConfig } from 'wagmi'
+import { mainnet, polygon, arbitrum } from 'viem/chains'
+import { createWeb3Modal, defaultWagmiConfig, Web3Modal, W3mButton } from '@web3modal/wagmi-react-native'
+import {
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  useColorScheme,
+} from 'react-native';
+import { FlexView, Text } from '@web3modal/ui-react-native';
 
-const isBase64 = (str) => {
-  try {
-    return btoa(atob(str)) == str;
-  } catch (err) {
-    return false;
+// 1. Get projectId
+const projectId = '49a082ffca38748d2ef8acceca12a92e'
+
+// 2. Create config
+const metadata = {
+  name: 'Web3Modal RN',
+  description: 'Web3Modal RN Example',
+  url: 'https://web3modal.com',
+  icons: ['https://avatars.githubusercontent.com/u/37784886'],
+  redirect: {
+    native: 'YOUR_APP_SCHEME://',
+    universal: 'YOUR_APP_UNIVERSAL_LINK.com'
   }
-};
+}
+
+const chains = [mainnet, polygon, arbitrum]
+
+const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
+
+// 3. Create modal
+createWeb3Modal({
+  projectId,
+  chains,
+  wagmiConfig
+})
 
 export default function App() {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-
-  const handleRegister = async () => {
-    try {
-      // const res = await api.post("/register-options", {
-      //   email,
-      //   name,
-      // });
-
-      // let options = res.data;
-      // console.log('options', options)
-      // options.authenticatorSelection.residentKey = "required";
-      // options.authenticatorSelection.requireResidentKey = true;
-      // options.extensions = {
-      //   credProps: true,
-      // };
-
-      // console.log(isBase64(options.challenge))
-
-      // const optionsResponse = await Passkey.register(options);
-
-      // const verifyRes = await api.post("/register-verify", {
-      //   optionsResponse,
-      //   email,
-      // });
-      if (verifyRes.status === 200) {
-        Alert.alert("All good", "success!");
-      }
-    } catch (error) {
-      Alert.alert("Error", "assasdas");
-      console.log(error.error);
-    }
-  };
-
+  const isDarkMode = useColorScheme() === 'dark';
   return (
-    <View style={styles.container}>
-      <Text>Register with webauthn on React Native!</Text>
-      <Text>Email</Text>
-      <TextInput
-        onChangeText={setEmail}
-        value={email}
-        style={{
-          height: 40,
-          width: 300,
-          borderColor: "gray",
-          borderWidth: 1,
-        }}
-      />
-      <Text>Name</Text>
-      <TextInput
-        onChangeText={setName}
-        value={name}
-        style={{
-          height: 40,
-          width: 300,
-          borderColor: "gray",
-          borderWidth: 1,
-        }}
-      />
-      <Button title="Register" onPress={handleRegister}></Button>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <WagmiConfig config={wagmiConfig}>
+      <SafeAreaView style={[styles.container, isDarkMode && styles.dark]}>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <Text style={styles.title} variant="large-600">
+          PePay
+        </Text>
+        <FlexView style={styles.buttonContainer}>
+          <W3mButton balance="show" />
+          {/* <SignMessage /> */}
+          {/* <SendTransaction /> */}
+          {/* <ReadContract /> */}
+        </FlexView>
+        <Web3Modal />
+      </SafeAreaView>
+    </WagmiConfig>
+  )
 }
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  buttonContainer: {
+    gap: 4,
+  },
+  dark: {
+    backgroundColor: '#141414',
+  },
+  title: {
+    marginBottom: 40,
+    fontSize: 30,
   },
 });
