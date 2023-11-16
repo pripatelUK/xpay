@@ -1,21 +1,23 @@
-import React, {useState} from 'react';
-import {View} from 'react-native';
-import {Button} from '@web3modal/ui-react-native';
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import { Button } from '@web3modal/ui-react-native';
 
-import {useAccount, useSignMessage} from 'wagmi';
-import {RequestModal} from '../components/RequestModal';
+import { useAccount, useSignMessage } from 'wagmi';
+import { RequestModal } from '../components/RequestModal';
+import { Linking } from "react-native";
 
 export function SignMessage() {
   const [requestModalVisible, setRequetsModalVisible] = useState(false);
-  const {isConnected} = useAccount();
+  const { isConnected } = useAccount();
 
-  const {data, isError, isLoading, isSuccess, signMessage} = useSignMessage({
+  const { data, isError, isLoading, isSuccess, signMessage } = useSignMessage({
     message: 'hello web3modal + wagmi',
   });
 
   const onPress = () => {
     signMessage();
     setRequetsModalVisible(true);
+    Linking.openURL(`metamask://`)
   };
 
   return isConnected ? (

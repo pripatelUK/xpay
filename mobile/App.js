@@ -1,7 +1,20 @@
 
 import '@walletconnect/react-native-compat';
 import { WagmiConfig } from 'wagmi'
-import { mainnet, polygon, arbitrum } from 'viem/chains'
+import {
+  arbitrum,
+  mainnet,
+  polygon,
+  avalanche,
+  bsc,
+  optimism,
+  gnosis,
+  zkSync,
+  zora,
+  base,
+  celo,
+  aurora,
+} from 'wagmi/chains';
 import { createWeb3Modal, defaultWagmiConfig, Web3Modal, W3mButton } from '@web3modal/wagmi-react-native'
 import {
   SafeAreaView,
@@ -18,6 +31,7 @@ import React, { useEffect, useState } from 'react';
 
 import { HomeScreen } from './components/HomeScreen';
 import { LoginScreen } from './components/LoginScreen';
+import { CreateVirtualScreen } from './components/CreateVirtualScreen';
 
 const Stack = createStackNavigator();
 
@@ -26,17 +40,31 @@ const projectId = '49a082ffca38748d2ef8acceca12a92e'
 
 // 2. Create config
 const metadata = {
-  name: 'Web3Modal RN',
-  description: 'Web3Modal RN Example',
-  url: 'https://web3modal.com',
+  name: 'PePay',
+  description: 'PePay',
+  url: 'https://pepay.io',
   icons: ['https://avatars.githubusercontent.com/u/37784886'],
   redirect: {
-    native: 'YOUR_APP_SCHEME://',
-    universal: 'YOUR_APP_UNIVERSAL_LINK.com'
-  }
-}
+    native: 'pepay://',
+    // universal: 'YOUR_APP_UNIVERSAL_LINK.com'
+  },
+};
 
-const chains = [mainnet, polygon, arbitrum]
+
+const chains = [
+  mainnet,
+  polygon,
+  avalanche,
+  arbitrum,
+  bsc,
+  optimism,
+  gnosis,
+  zkSync,
+  zora,
+  base,
+  celo,
+  aurora,
+];
 
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
 
@@ -79,6 +107,7 @@ export default function App() {
           screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="CreateVirtual" component={CreateVirtualScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </WagmiConfig >
