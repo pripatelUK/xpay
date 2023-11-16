@@ -33,12 +33,12 @@ export function HomeScreen({ navigation }: any) {
                 <SignMessage />
                 <SendTransaction />
                 {/* <ReadContract /> */}
-                {/* <Button
+                <Button
                     onPress={async () => {
-                        navigation.navigate('Login');
+                        navigation.navigate('CreateVirtual');
                     }}>
-                    Login
-                </Button> */}
+                    Create Virtual Account
+                </Button>
             </FlexView>
             {/* <Web3Modal /> */}
         </SafeAreaView>

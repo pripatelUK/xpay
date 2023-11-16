@@ -72,6 +72,7 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <!-- <data android:scheme="com.pripateluk.login"/> -->
+        <data android:scheme="pepay" />
         <data android:scheme="http" />
         <data android:scheme="https" />
         <data android:host="pripateluk.github.io" />
