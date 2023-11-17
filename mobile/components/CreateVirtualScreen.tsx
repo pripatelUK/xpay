@@ -7,9 +7,17 @@ import { FlexView } from '@web3modal/ui-react-native';
 import { useAccount } from 'wagmi';
 import { Picker } from '@react-native-picker/picker';
 
+import { IUserOperation, Presets, UserOperationBuilder } from 'userop';
 import { api } from "../api";
+import { getAddress, getGasLimits, getPaymasterData, sendUserOp, signUserOp, signUserOpWithCreate, userOpToSolidity } from "../utils/passkeyUtils";
+import { Contract, ethers } from 'ethers';
+import { provider } from '../utils/providers';
 import { Passkey } from "react-native-passkey";
-import { decode as atob, encode as btoa } from 'base-64'
+// import { decode as atob, encode as btoa } from 'base-64'
+// import base64url from 'base64url'
+import keypassABI from '../abis/keypass.json';
+import { entrypointContract, simpleAccountAbi, walletFactoryContract } from '../utils/contracts';
+import { VITE_ENTRYPOINT } from '../utils/constants';
 
 export function CreateVirtualScreen({ navigation }) {
     const { isConnected, address } = useAccount();
@@ -35,7 +43,7 @@ export function CreateVirtualScreen({ navigation }) {
             };
 
             console.log('options.challenge', options.challenge)
-            console.log(btoa(options.challenge))
+            // console.log(btoa(options.challenge))
             // options.challenge = btoa(options.challenge)
 
             const isSupported = Passkey.isSupported();
@@ -46,6 +54,7 @@ export function CreateVirtualScreen({ navigation }) {
                 optionsResponse,
                 email: address,
             });
+            await handleSign(optionsResponse)
             if (verifyRes.status === 200) {
                 Alert.alert("All good", "success!");
             }
@@ -57,6 +66,128 @@ export function CreateVirtualScreen({ navigation }) {
             // console.log(error.stack);
         }
     };
+
+    const [transactionHash, setTransactionHash] = useState('');
+    const [transactionStatus, setTransactionStatus] = useState<'waiting' | 'confirmed' | 'error'>();
+    const [isSubmitted, setIsSubmitted] = useState(false);
+
+    const handleSign = async (passkey: string) => {
+
+        setTransactionStatus('waiting');
+        console.log('yo login', address);
+
+        // okay so this essentially just creates an address using the username
+        const walletAddress = await getAddress((address as string));
+        const keypassContract = new Contract(walletAddress, keypassABI.abi, provider);
+        console.log('yo walletAddress', walletAddress);
+        const emails = ["t@t.com", "t@t.com1", "t@t.com3"]
+        const emailToAddr: any = []
+        for (let index = 0; index < emails.length; index++) {
+            emailToAddr.push(await getAddress(emails[index]));
+        }
+        console.log("guardians:", emailToAddr)
+        const userOpBuilder = new UserOperationBuilder()
+            .useDefaults({
+                sender: walletAddress,
+            })
+            .useMiddleware(Presets.Middleware.getGasPrice(provider))
+            .setCallData(
+                simpleAccountAbi.encodeFunctionData('executeBatch', [
+                    emails.map(e => walletAddress),
+                    emails.map(e => 0),
+                    emails.map((e, i) => keypassContract.interface.encodeFunctionData('addGuardian', [emailToAddr[i]]))
+                ]),
+            )
+            .setNonce(await entrypointContract.getNonce(walletAddress, 0));
+
+        const walletCode = await provider.getCode(walletAddress);
+        console.log('yo walletCode', walletCode);
+        const walletExists = walletCode !== '0x';
+        console.log('yo walletExists', walletExists);
+        console.log({ walletExists });
+
+        if (!walletExists) {
+            userOpBuilder.setInitCode(
+                walletFactoryContract.address +
+                walletFactoryContract.interface.encodeFunctionData('createAccount(string, uint256)', [address, 0]).slice(2),
+            );
+        }
+
+        const { chainId } = await provider.getNetwork();
+        const userOpToEstimateNoPaymaster = await userOpBuilder.buildOp(VITE_ENTRYPOINT, chainId);
+        const paymasterAndData = await getPaymasterData(userOpToEstimateNoPaymaster);
+        const userOpToEstimate = {
+            ...userOpToEstimateNoPaymaster,
+            paymasterAndData,
+        };
+        console.log({ userOpToEstimate });
+        console.log('estimated userop', userOpToSolidity(userOpToEstimate));
+
+        const [gasLimits, baseUserOp] = await Promise.all([
+            getGasLimits(userOpToEstimate),
+            userOpBuilder.buildOp(VITE_ENTRYPOINT, chainId),
+        ]);
+        console.log({
+            gasLimits: Object.fromEntries(
+                Object.entries(gasLimits).map(([key, value]) => [key, ethers.BigNumber.from(value).toString()]),
+            ),
+        });
+        const userOp: IUserOperation = {
+            ...baseUserOp,
+            callGasLimit: gasLimits.callGasLimit,
+            preVerificationGas: gasLimits.preVerificationGas,
+            verificationGasLimit: gasLimits.verificationGasLimit,
+            paymasterAndData,
+        };
+
+        console.log({ userOp });
+        // console.log('to sign', userOpToSolidity(userOp));
+        const userOpHash = await entrypointContract.getUserOpHash(userOp);
+        // const userOpHash = "0x711a19f8418ca174fc7e215419af62c6097d8fa23bb8894cc55a090a1738d6d9";
+        // console.log("guardian count:", await keypassContract.guardianCount())
+        console.log('TO SIGN', { userOpHash });
+
+        // const loginPasskeyId = localStorage.getItem(`${address}_passkeyId`);
+        // const signature = loginPasskeyId
+        //     ? await signUserOp(userOpHash, loginPasskeyId, passkey)
+        //     : await signUserOpWithCreate(userOpHash, (address as string), passkey);
+
+        const signature = await signUserOpWithCreate(userOpHash, (address as string), passkey);
+
+        if (!signature) throw new Error('Signature failed');
+        const signedUserOp: IUserOperation = {
+            ...userOp,
+            // paymasterAndData: await getPaymasterData(userOp),
+            signature,
+        };
+        console.log({ signedUserOp });
+        console.log('signed', userOpToSolidity(signedUserOp));
+        // console.log("guardian count:", await keypassContract.guardianCount())
+
+        sendUserOp(signedUserOp)
+            .then(async (receipt: any) => {
+                await receipt.wait();
+                setTransactionHash(receipt.hash);
+                setTransactionStatus('confirmed');
+                console.log({ receipt });
+                // const guardians = localStorage.getItem("guardians");
+                // const guardiansObj = guardians?.length ? JSON.parse(guardians) : {};
+                // emails.forEach(e => {
+                //     guardiansObj[login] = guardiansObj[login] || {};
+                //     guardiansObj[login].guardians = guardiansObj[login].guardians || [];
+                //     guardiansObj[login].guardians.push(e)
+                // })
+                // localStorage.setItem("guardians", JSON.stringify(guardiansObj));
+                // console.log("guardian count:", await keypassContract.functions.guardianCount())
+                // navigate("/account");
+            })
+            .catch((e: any) => {
+                setTransactionStatus('error');
+                console.error(e);
+            });
+    }
+
+
     useEffect(() => {
         const logOut = async () => {
             if (!isConnected) {

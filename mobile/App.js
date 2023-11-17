@@ -3,7 +3,6 @@ import '@walletconnect/react-native-compat';
 import '@ethersproject/shims';
 import process from 'process';
 global.process = process;
-import cbor from 'cbor';
 import { WagmiConfig } from 'wagmi'
 import {
   arbitrum,

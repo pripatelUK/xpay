@@ -9,6 +9,7 @@ import { decodeAuthenticationCredential } from './debugger/decodeAuthenticationC
 import { decodeRegistrationCredential } from './debugger/decodeRegistrationCredential';
 import { entrypointContract, walletFactoryContract } from './contracts';
 import { provider, bundler, paymasterProvider } from './providers';
+import { VITE_ENTRYPOINT, VITE_LOGIN_SERVICE_PORT } from './constants';
 
 enum SignatureTypes {
   NONE,
@@ -166,7 +167,7 @@ export const signUserOpWithCreate = async (userOpHash: string, login: string, pa
   //   attestation: 'direct',
   // });
   const credId = `0x${base64url.toBuffer(passkey.id).toString('hex')}`;
-  localStorage.setItem(`${login}_passkeyId`, credId);
+  // localStorage.setItem(`${login}_passkeyId`, credId);
   console.log({ credId });
   console.log('webauthn response', passkey);
   const decodedPassKey = decodeRegistrationCredential(passkey);
@@ -186,10 +187,10 @@ export const signUserOpWithCreate = async (userOpHash: string, login: string, pa
       .toBuffer(decodedPassKey.response.attestationObject.authData.parsedCredentialPublicKey?.y || '')
       .toString('hex'),
   ];
-
+  console.log("pubKeyCoordinates", pubKeyCoordinates)
   const { data: loginServiceData } = await axios.request({
     method: 'POST',
-    url: `http://localhost:${VITE_LOGIN_SERVICE_PORT}/login`,
+    url: `http://192.168.1.104:${VITE_LOGIN_SERVICE_PORT}/login`,
     data: {
       login,
       credId,
