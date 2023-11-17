@@ -31,9 +31,9 @@ export function LoginScreen({ navigation }: any) {
                 {/* <ReadContract /> */}
                 <Button
                     onPress={async () => {
-                        // navigation.navigate('Login');
+                        navigation.navigate('MerchantLogin');
                     }}>
-                    ARX Login
+                    Merchant Login
                 </Button>
             </FlexView>
             <Web3Modal />

@@ -26,6 +26,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import { FlexView, Text } from '@web3modal/ui-react-native';
+import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -35,6 +36,10 @@ import React, { useEffect, useState } from 'react';
 import { HomeScreen } from './components/HomeScreen';
 import { LoginScreen } from './components/LoginScreen';
 import { CreateVirtualScreen } from './components/CreateVirtualScreen';
+import { MerchantLoginScreen } from './components/MerchantLoginScreen';
+import { MerchantHomeScreen } from './components/MerchantHomeScreen';
+import { ArxRegisterScreen } from './components/ArxRegisterScreen';
+import { NewTransactionScreen } from './components/NewTransactionScreen';
 
 const Stack = createStackNavigator();
 
@@ -78,6 +83,9 @@ createWeb3Modal({
   wagmiConfig
 })
 
+// initialize NfcManager on application's startup
+NfcManager.start();
+
 export default function App() {
   const isDarkMode = useColorScheme() === 'dark';
   const [initialized, setInitialized] = useState(false);
@@ -111,6 +119,10 @@ export default function App() {
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="CreateVirtual" component={CreateVirtualScreen} />
+          <Stack.Screen name="ArxRegister" component={ArxRegisterScreen} />
+          <Stack.Screen name="MerchantLogin" component={MerchantLoginScreen} />
+          <Stack.Screen name="MerchantHome" component={MerchantHomeScreen} />
+          <Stack.Screen name="NewTransaction" component={NewTransactionScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </WagmiConfig >
