@@ -11,20 +11,12 @@ import { IEntryPoint } from "@account-abstraction/contracts/interfaces/IEntryPoi
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import { UserOperation } from "@account-abstraction/contracts/interfaces/UserOperation.sol";
 import { TokenCallbackHandler } from "@account-abstraction/contracts/samples/callback/TokenCallbackHandler.sol";
-import { AllowanceModule } from "./AllowanceModule.sol";
-import { AccessController } from "./AccessController.sol";
+import { AllowanceController } from "./AllowanceController.sol";
 import { console2 } from "@forge-std/console2.sol";
 
 /// @title Minimalist 4337 Account with WebAuthn support
 /// @custom:experimental DO NOT USE IT IN PRODUCTION
-contract WebAuthnAccount is
-    BaseAccount,
-    TokenCallbackHandler,
-    UUPSUpgradeable,
-    Initializable,
-    AccessController,
-    AllowanceModule
-{
+contract WebAuthnAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Initializable, AllowanceController {
     using ECDSA for bytes32;
 
     address public immutable webauthnVerifier;
@@ -62,16 +54,7 @@ contract WebAuthnAccount is
     // solhint-disable-next-line no-empty-blocks
     receive() external payable { }
 
-    constructor(
-        IEntryPoint anEntryPoint,
-        address _webauthnVerifier,
-        address _loginService,
-        address _factory,
-        address _token,
-        uint256 _allowance
-    )
-        AllowanceModule(_token, _allowance)
-    {
+    constructor(IEntryPoint anEntryPoint, address _webauthnVerifier, address _loginService, address _factory) {
         _entryPoint = anEntryPoint;
         webauthnVerifier = _webauthnVerifier;
         loginService = _loginService;

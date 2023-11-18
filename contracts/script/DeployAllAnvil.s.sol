@@ -30,7 +30,7 @@ contract DeployAnvil is BaseScript, Test {
         uint256 allowance = 100 ether;
 
         WebAuthnAccountFactory webAuthnAccountFactory =
-        new WebAuthnAccountFactory(entryPoint, webAuthnAddr, 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65, token, allowance);
+            new WebAuthnAccountFactory(entryPoint, webAuthnAddr, 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65);
 
         console2.log("webAuthnAccountFactory", address(webAuthnAccountFactory));
 

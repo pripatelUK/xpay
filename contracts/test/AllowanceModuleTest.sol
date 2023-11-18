@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
-import { AllowanceModule } from "../src/Accounts/AllowanceModule.sol";
+import { AllowanceController } from "../src/Accounts/AllowanceController.sol";
 import { MockERC20 } from "../src/Mock/MockERC20.sol";
 import { EntryPoint } from "@account-abstraction/contracts/core/EntryPoint.sol";
 import { WebAuthn256r1 } from "../src/Lib/WebAuthn256r1.sol";
@@ -14,7 +14,6 @@ import { Paymaster } from "../src/Paymaster/Paymaster.sol";
 
 contract AllowanceModuleTest is Test {
     MockERC20 mockUSDC;
-    AllowanceModule allowanceModule;
     address escrowAddr = vm.addr(0x27);
     // address merchantAddr = vm.addr(0xed);
     address customerAddr = vm.addr(0xdede);
@@ -58,7 +57,7 @@ contract AllowanceModuleTest is Test {
         uint256 allowance = 100 ether;
 
         WebAuthnAccountFactory webAuthnAccountFactory =
-        new WebAuthnAccountFactory(entryPoint, webAuthnAddr, 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65, token, allowance);
+            new WebAuthnAccountFactory(entryPoint, webAuthnAddr, 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65);
         console2.log("webAuthnAccountFactory", address(webAuthnAccountFactory));
 
         Paymaster paymaster = new Paymaster(entryPoint, msg.sender);

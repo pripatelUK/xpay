@@ -16,15 +16,8 @@ import { WebAuthnAccount } from "./WebAuthnAccount.sol";
 contract WebAuthnAccountFactory {
     WebAuthnAccount public immutable accountImplementation;
 
-    constructor(
-        IEntryPoint _entryPoint,
-        address webAuthnVerifier,
-        address loginService,
-        address token,
-        uint256 allowance
-    ) {
-        accountImplementation =
-            new WebAuthnAccount(_entryPoint, webAuthnVerifier, loginService, address(this), token, allowance);
+    constructor(IEntryPoint _entryPoint, address webAuthnVerifier, address loginService) {
+        accountImplementation = new WebAuthnAccount(_entryPoint, webAuthnVerifier, loginService, address(this));
     }
 
     /**

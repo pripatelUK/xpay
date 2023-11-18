@@ -1,12 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity ^0.8.19;
 
+import "./IAccessController.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IAllowanceModule } from "./IAllowanceModule.sol";
 // import { console2 } from "@forge-std/console2.sol";
 import "forge-std/console.sol";
 
-abstract contract AllowanceModule is IAllowanceModule {
+abstract contract AllowanceController is IAccessController, IAllowanceModule {
+    uint256 public ownerCount;
+    uint256 public guardianCount;
+    mapping(address => bool) private owners;
+    uint8 public _signersCount;
+    mapping(bytes => uint256[2]) public _signers;
+
     uint256 private lastSpend;
     uint256 private cumulativeSpent;
 
@@ -16,23 +23,19 @@ abstract contract AllowanceModule is IAllowanceModule {
 
     mapping(address => uint256) private dailyAllowances;
 
-    //@note amount here is on token native decimals e.g. 1e6 for usdc and 1e18 for gho
-    constructor(address token, uint256 allowance) {
+    modifier onlyOwner() {
+        require(isOwner(msg.sender) || msg.sender == address(this), "ACL:: only owner");
+        _;
+    }
+
+    function setAllowance(address token, uint256 allowance) external onlyOwner {
         lastSpend = block.timestamp - 1 days;
         cumulativeSpent = 0;
-
-        //set all allowances
-        // require(tokens.length == allowances.length, "all tokens need an allowance");
-        // for (uint256 i = 0; i < tokens.length; i++) {
-        //     uint8 decimals = IERC20Metadata(tokens[i]).decimals();
-        //     uint256 normalizedAllowance = (allowances[i] * 10 ** 18) / (10 ** decimals);
-        //     dailyAllowances[tokens[i]] = normalizedAllowance;
-        // }
         dailyAllowances[token] = allowance;
     }
 
     //@note amount here is on token native decimals e.g. 1e6 for usdc and 1e18 for gho
-    function pay(address tokenAddr, uint256 amount, address customerAddr, address merchantAddr) external virtual {
+    function pay(address tokenAddr, uint256 amount, address customerAddr, address merchantAddr) external onlyOwner {
         IERC20Metadata token = IERC20Metadata(tokenAddr);
         uint256 normalizedAmount = (amount * 10 ** 18) / (10 ** token.decimals());
         uint256 timeDelta = block.timestamp - lastSpend;
@@ -50,5 +53,40 @@ abstract contract AllowanceModule is IAllowanceModule {
             token.transferFrom(customerAddr, merchantAddr, amount);
             cumulativeSpent += normalizedAmount;
         }
+    }
+
+    modifier onlyOwnerOrEntryPoint(address _entryPoint) {
+        require(msg.sender == _entryPoint || isOwner(msg.sender), "ACL:: not owner or entryPoint");
+        _;
+    }
+
+    function isOwner(address _address) public view returns (bool) {
+        return owners[_address];
+    }
+
+    //custom
+    function addSigner(bytes calldata credId, uint256[2] calldata pubKeyCoordinates) external onlyOwner {
+        _addSigner(credId, pubKeyCoordinates);
+    }
+
+    //custom
+    function _addSigner(bytes memory credId, uint256[2] memory pubKeyCoordinates) internal {
+        _signers[credId] = pubKeyCoordinates;
+        _signersCount++;
+    }
+
+    function addOwner(address _newOwner) external onlyOwner {
+        _addOwner(_newOwner);
+    }
+
+    // INTERNAL
+
+    function _addOwner(address _newOwner) internal {
+        // no check for address(0) as used when creating wallet via BLS.
+        require(_newOwner != address(0), "ACL:: zero address");
+        require(!owners[_newOwner], "ACL:: already owner");
+        emit OwnerAdded(_newOwner);
+        owners[_newOwner] = true;
+        ownerCount = ownerCount + 1;
     }
 }
