@@ -4,7 +4,8 @@
   "scripts": {
     "start": "expo start",
     "start:r": "react-native start",
-    "android:r": "react-native run-android",
+    "android:r": "react-native run-android --deviceId=27261FDH3004SM",
+    "android:r2": "react-native run-android --deviceId=53F5T19328001548",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "expo_install": "expo install react-native-screens react-native-safe-area-context",

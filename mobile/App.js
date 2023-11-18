@@ -40,7 +40,7 @@ import { MerchantLoginScreen } from './components/MerchantLoginScreen';
 import { MerchantHomeScreen } from './components/MerchantHomeScreen';
 import { ArxRegisterScreen } from './components/ArxRegisterScreen';
 import { NewTransactionScreen } from './components/NewTransactionScreen';
-import { Linking } from 'react-native';
+import { CustomerTransactionScreen } from './components/CustomerTransactionScreen';
 
 const Stack = createStackNavigator();
 
@@ -89,19 +89,6 @@ NfcManager.start();
 
 export default function App() {
 
-  useEffect(() => {
-    const handleDeepLink = (event) => {
-      console.log(event.url);
-      // Handle the deep link URL (e.g., navigate to a specific screen)
-    };
-
-    Linking.addEventListener('url', handleDeepLink);
-
-    return () => {
-      Linking.removeEventListener('url', handleDeepLink);
-    };
-  }, []);
-
   const isDarkMode = useColorScheme() === 'dark';
   const [initialized, setInitialized] = useState(false);
   const [sessionToken, setSessionToken] = useState(null);
@@ -138,6 +125,7 @@ export default function App() {
           <Stack.Screen name="MerchantLogin" component={MerchantLoginScreen} />
           <Stack.Screen name="MerchantHome" component={MerchantHomeScreen} />
           <Stack.Screen name="NewTransaction" component={NewTransactionScreen} />
+          <Stack.Screen name="CustomerTransaction" component={CustomerTransactionScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </WagmiConfig >

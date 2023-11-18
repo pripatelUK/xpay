@@ -1,6 +1,6 @@
-export const VITE_NETWORK = "http://192.168.1.104:8545"
-export const VITE_BUNDLER = "http://192.168.1.104:4338/rpc"
-export const VITE_PAYMASTER = "http://192.168.1.104:4339/paymaster"
+export const VITE_NETWORK = "http://192.168.1.102:8545"
+export const VITE_BUNDLER = "http://192.168.1.102:4338/rpc"
+export const VITE_PAYMASTER = "http://192.168.1.102:4339/paymaster"
 
 
 export const VITE_ENTRYPOINT = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
