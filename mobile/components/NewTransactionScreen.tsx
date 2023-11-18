@@ -2,11 +2,82 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, TextInput, View, Button, Text } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
+import {
+    defaultPubsubTopic,
+    onMessage,
+} from '@waku/react-native';
+
+import { connectPeers, formatMessage, sendMessage, startNode } from '../waku/wakuConnect';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 export function NewTransactionScreen({ navigation }) {
     const [amount, setAmount] = useState('');
     const [currency, setCurrency] = useState('EUR');
     const [requestingTransaction, setRequestingTransaction] = useState(false);
     const inputRef = useRef(null);
+    const [result, setResult] = React.useState();
+    const [isTopicRecieved, setTopicRecieved] = React.useState(false);
+    const [isTxDataRecieved, setTxDataRecieved] = React.useState(false);
+    const [isValueDataSent, setValueDataSent] = React.useState(false);
+    const [status, setStatus] = React.useState('Requesting Transaction...');
+
+    const sendValueData = async () => {
+        setValueDataSent(true)
+        setStatus("Sending Customer Price...")
+        sendMessage("/customer/0x12345", "txvalue:1")
+    }
+
+    //@todo remove this is for customer only
+    const sendTopic = async () => {
+        const chipId = await AsyncStorage.getItem('@chipId')
+        sendMessage('/merchant/' + chipId, "/customer/0x12345")
+    }
+
+
+    React.useEffect(() => {
+        (async () => {
+
+            await startNode();
+
+            onMessage(async (event) => {
+                // console.log(event)
+                let chipId = await AsyncStorage.getItem('@chipId');
+                console.log(event.wakuMessage)
+                console.log(event.wakuMessage.contentTopic, `/merchant/` + chipId)
+                if (event.wakuMessage.contentTopic !== `/merchant/` + chipId) return;
+
+                let payload = formatMessage(JSON.stringify(event.wakuMessage.payload));
+                console.log("payload", payload)
+                // console.log(payload.split())
+                if (payload.includes("/customer/")) {
+                    setTopicRecieved(true)
+                    setStatus("Opening Communication with Customer...")
+                    console.log("topic found")
+                }
+            });
+
+            // listen on customer channel
+            onMessage(async (event) => {
+                // console.log(event)
+                const customerAddr = "0x12345"
+                if (event.wakuMessage.contentTopic !== `/customer/` + customerAddr) return;
+                console.log(`/customer/` + customerAddr)
+                // console.log(event.wakuMessage.payload)
+                let payload = formatMessage(JSON.stringify(event.wakuMessage.payload));
+                console.log("payload", payload)
+                // console.log(payload.split())
+                if (payload.includes("txdata:")) {
+                    setTxDataRecieved(true)
+                    setStatus("Recieved Transaction Data")
+                    console.log("txdata found")
+                }
+            });
+
+        })();
+
+        defaultPubsubTopic().then(() => { });
+    }, []);
 
     useEffect(() => {
         inputRef.current.focus();
@@ -25,11 +96,14 @@ export function NewTransactionScreen({ navigation }) {
     if (requestingTransaction) {
         return (
             <SafeAreaView style={styles.container}>
-                <Text style={styles.title}>Requesting Transaction</Text>
+                <Text style={styles.title}>{status}</Text>
                 <Text>Please wait...</Text>
                 <Text>Amount: {formatCurrency(amount)}</Text>
                 <Text>Asset: {currency}</Text>
                 <Button title="Back" onPress={() => setRequestingTransaction(false)} />
+                <Button title="send topic (test)" onPress={sendTopic} />
+                <Button title="send Value" onPress={sendValueData} />
+                <Button title="send tx data (test)" onPress={() => sendMessage("/customer/0x12345", "txdata:blah")} />
             </SafeAreaView>
         );
     }

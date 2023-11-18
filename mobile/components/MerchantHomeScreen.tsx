@@ -12,6 +12,12 @@ export function MerchantHomeScreen({ navigation }) {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [transactions, setTransactions] = useState(mockTransactions);
 
+    const logOut = async () => {
+        await AsyncStorage.removeItem('@phone_number');
+        await AsyncStorage.removeItem('@chipId');
+        navigation.navigate('Login');
+    };
+
     useEffect(() => {
         async function loadPhoneNumber() {
             const number = await AsyncStorage.getItem('@phone_number');
@@ -44,6 +50,10 @@ export function MerchantHomeScreen({ navigation }) {
             <Button
                 title="New Transaction"
                 onPress={() => navigation.navigate('NewTransaction')}
+            />
+            <Button
+                title="Logout"
+                onPress={logOut}
             />
         </SafeAreaView>
     );

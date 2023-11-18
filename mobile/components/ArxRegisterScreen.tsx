@@ -40,7 +40,7 @@ export function ArxRegisterScreen({ navigation }) {
                 format: "text"
             });
             console.log(signature);
-            // Additional logic as needed
+            await AsyncStorage.setItem('@chipId', signature.etherAddress.toLowerCase());
         } catch (ex) {
             console.warn("Oops!", ex);
         } finally {

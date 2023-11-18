@@ -19,6 +19,17 @@ export function LoginScreen({ navigation }: any) {
         };
         goHome();
     }, [isConnected]);
+
+    useEffect(() => {
+        const goMerchantHome = async () => {
+            const chipId = await AsyncStorage.getItem('@chipId');
+            // const storedToken = await AsyncStorage.getItem('@phone_number');
+            if (chipId) {
+                navigation.navigate('MerchantHome');
+            }
+        };
+        goMerchantHome();
+    }, [isConnected]);
     return (
         <SafeAreaView style={[styles.container, styles.dark]}>
             <Text style={styles.title} variant="large-600">

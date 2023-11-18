@@ -67,7 +67,7 @@ export async function connectPeers() {
     console.log('connected!');
 }
 
-export async function sendMessage(myContentTopic) {
+export async function sendMessage(myContentTopic, str) {
     await startNode();
 
     await connectPeers();
@@ -77,10 +77,16 @@ export async function sendMessage(myContentTopic) {
 
     let msg = new WakuMessage();
     msg.contentTopic = myContentTopic;
-    msg.payload = new Uint8Array([1, 2, 3, 4, 5]);
+    // msg.payload = new Uint8Array([1, 2, 3, 4, 5]);
+    msg.payload = new Uint8Array(str.split('').map(char => char.charCodeAt(0)));
     msg.timestamp = new Date();
     msg.version = 0;
 
     let messageID = await relayPublish(msg);
     console.log('The messageID', messageID);
+}
+
+export function formatMessage(obj) {
+    let data = JSON.parse(obj);
+    return String.fromCharCode.apply(null, data.data);
 }
