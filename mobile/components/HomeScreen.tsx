@@ -64,6 +64,7 @@ export function HomeScreen({ navigation }: any) {
     }, [isConnected]);
 
     const logOut = async () => {
+        await AsyncStorage.removeItem(`${address}_passkeyId`);
         await AsyncStorage.removeItem(passkeyID);
         await AsyncStorage.removeItem('@session_token');
         disconnect()

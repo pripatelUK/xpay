@@ -28,7 +28,7 @@ abstract contract AllowanceController is IAccessController, IAllowanceModule {
         _;
     }
 
-    function setAllowance(address token, uint256 allowance) external onlyOwner {
+    function setDailyAllowance(address token, uint256 allowance) external onlyOwner {
         lastSpend = block.timestamp - 1 days;
         cumulativeSpent = 0;
         dailyAllowances[token] = allowance;

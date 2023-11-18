@@ -20,14 +20,12 @@ contract DeployAnvil is BaseScript, Test {
 
         address webAuthnAddr = address(new WebAuthn256r1());
         console2.log("webAuthn", webAuthnAddr);
-        //allowance module setup
-        mockUSDC = new MockERC20("mockUSDC", "USDC", 100 ether, 18);
         // address[] memory tokens = new address[](1);
         // uint256[] memory allowances = new uint256[](1);
         // tokens[0] = address(mockUSDC);
         // allowances[0] = 100 ether;
-        address token = address(mockUSDC);
-        uint256 allowance = 100 ether;
+        // address token = address(mockUSDC);
+        // uint256 allowance = 100 ether;
 
         WebAuthnAccountFactory webAuthnAccountFactory =
             new WebAuthnAccountFactory(entryPoint, webAuthnAddr, 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65);
@@ -37,6 +35,9 @@ contract DeployAnvil is BaseScript, Test {
         Paymaster paymaster = new Paymaster(entryPoint, msg.sender);
         console2.log("paymaster", address(paymaster));
         console2.log("paymaster owner", msg.sender);
+
+        mockUSDC = new MockERC20("mockUSDC", "USDC", 100000 ether, 18);
+        console2.log("mock erc", address(mockUSDC));
 
         paymaster.addStake{ value: 1 wei }(60 * 10);
         paymaster.deposit{ value: 10 ether }();
