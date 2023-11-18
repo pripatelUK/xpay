@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, TextInput, View, Button, Text } from 'react-native';
+import { SafeAreaView, StyleSheet, TextInput, View, Button, Text, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 import {
@@ -26,12 +26,6 @@ export function NewTransactionScreen({ navigation }) {
         setValueDataSent(true)
         setStatus("Sending Customer Price...")
         sendMessage("/customer/0x12345", "txvalue:1")
-    }
-
-    //@todo remove this is for customer only
-    const sendTopic = async () => {
-        const chipId = await AsyncStorage.getItem('@chipId')
-        sendMessage('/merchant/' + chipId, "/customer/0x12345")
     }
 
 
@@ -97,19 +91,16 @@ export function NewTransactionScreen({ navigation }) {
         return (
             <SafeAreaView style={styles.container}>
                 <Text style={styles.title}>{status}</Text>
-                <Text>Please wait...</Text>
-                <Text>Amount: {formatCurrency(amount)}</Text>
-                <Text>Asset: {currency}</Text>
+                <ActivityIndicator size="large" />
+                <Text style={styles.price}>{formatCurrency(amount)} {currency}</Text>
                 <Button title="Back" onPress={() => setRequestingTransaction(false)} />
-                <Button title="send topic (test)" onPress={sendTopic} />
-                <Button title="send Value" onPress={sendValueData} />
-                <Button title="send tx data (test)" onPress={() => sendMessage("/customer/0x12345", "txdata:blah")} />
             </SafeAreaView>
         );
     }
 
     return (
         <SafeAreaView style={styles.container}>
+            <Text style={styles.title}>Take Payment</Text>
             <Picker
                 selectedValue={currency}
                 style={styles.picker}
@@ -160,6 +151,10 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 22,
+        marginBottom: 10,
+    },
+    price: {
+        fontSize: 32,
         marginBottom: 10,
     },
     // ... other styles

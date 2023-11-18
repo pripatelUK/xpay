@@ -1,4 +1,5 @@
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ethers } from 'ethers';
 import base64url from 'base64url';
 import { v4 as uuid } from 'uuid';
@@ -167,7 +168,7 @@ export const signUserOpWithCreate = async (userOpHash: string, login: string, pa
   //   attestation: 'direct',
   // });
   const credId = `0x${base64url.toBuffer(passkey.id).toString('hex')}`;
-  // localStorage.setItem(`${login}_passkeyId`, credId);
+  await AsyncStorage.setItem(`${login}_passkeyId`, credId);
   console.log({ credId });
   console.log('webauthn response', passkey);
   const decodedPassKey = decodeRegistrationCredential(passkey);

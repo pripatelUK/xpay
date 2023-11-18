@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
-import { View, Text, ActivityIndicator, Button } from 'react-native';
+import { View, Text, ActivityIndicator, Button, SafeAreaView, StyleSheet, TextInput } from 'react-native';
 import { startNode, connectPeers, sendMessage, formatMessage } from '../waku/wakuConnect';
 import { useAccount } from 'wagmi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { Picker } from '@react-native-picker/picker';
 
 import {
     defaultPubsubTopic,
@@ -17,7 +19,10 @@ export function CustomerTransactionScreen({ navigation }) {
     const [isTopicSent, setTopicSent] = React.useState(false);
     const [isTxDataSent, setTxDataSent] = React.useState(false);
     const [isValueRecieved, setValueRecieved] = React.useState(false);
-    const [result, setResult] = React.useState();
+
+    const [amount, setAmount] = React.useState('');
+    const [currency, setCurrency] = React.useState('EUR');
+    const [requestingTransaction, setRequestingTransaction] = React.useState(false);
 
 
     const sendTopic = async () => {
@@ -65,14 +70,94 @@ export function CustomerTransactionScreen({ navigation }) {
         defaultPubsubTopic().then(() => { });
     }, []);
 
+    const formatCurrency = (value) => {
+        // Format the input value to a currency format
+        // Implement or use a library for currency formatting as needed
+        return value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    };
+
+    //@todo
+    const handlePayment = () => {
+        setRequestingTransaction(false)
+        //@todo passkey auth
+        setStatus("Executing Transaction")
+        // send transaction
+        // get transaction hash
+        // send tx hash to merchant
+        sendTxData()
+    };
+
+    if (requestingTransaction) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <Text style={styles.title}>{status}</Text>
+                <Text style={styles.price}>{"15 EUR"}</Text>
+                <View style={styles.inputRow}>
+                    <Text style={styles.text}>{formatCurrency("1000")}</Text>
+                    <Picker
+                        itemStyle={{ height: 44 }}
+                        selectedValue={currency}
+                        style={styles.picker}
+                        onValueChange={(itemValue) => setCurrency(itemValue)}
+                    >
+                        <Picker.Item label="GHO" value="GHO" />
+                        <Picker.Item label="USDC" value="USDC" />
+                        <Picker.Item label="sDAI" value="sDAI" />
+                        {/* Add more currencies as needed */}
+                    </Picker>
+                </View>
+                <Button title="Back" onPress={() => setRequestingTransaction(false)} />
+                <Button title="Pay" onPress={handlePayment} />
+            </SafeAreaView>
+        );
+    }
+
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>{status}</Text>
+            <Text style={styles.title}>{status}</Text>
             <ActivityIndicator size="large" />
-            <Button title="send topic" onPress={sendTopic} />
-            <Button title="send value (TEST)" onPress={() => sendMessage("/customer/0x12345", "txvalue:1")} />
-            <Button title="send tx data" onPress={sendTxData} />
             <Button title="HOME" onPress={() => navigation.navigate('Home')} />
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    price: {
+        fontSize: 32,
+        marginBottom: 10,
+    },
+    inputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '70%',
+        marginBottom: 20,
+    },
+    text: {
+        flex: 1,
+        marginLeft: 40,
+        fontSize: 32,
+        // Additional text styling if needed
+    },
+    picker: {
+        flex: 1,
+        fontSize: 32,
+        height: 60,
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: '100%',
+        padding: 20,
+    },
+    title: {
+        fontSize: 22,
+        marginBottom: 10,
+    },
+    // ... other styles
+});

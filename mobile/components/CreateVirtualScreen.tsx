@@ -1,10 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect } from 'react';
-import { Alert, SafeAreaView, StyleSheet, TextInput, View, Text } from 'react-native';
+import { Alert, SafeAreaView, StyleSheet, TextInput, View, Text, ActivityIndicator } from 'react-native';
 import { Button } from './Button';
 import { W3mButton } from '@web3modal/wagmi-react-native';
 import { FlexView } from '@web3modal/ui-react-native';
-import { useAccount } from 'wagmi';
+import { useAccount, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
 import { Picker } from '@react-native-picker/picker';
 
 import { IUserOperation, Presets, UserOperationBuilder } from 'userop';
@@ -18,6 +18,7 @@ import { Passkey } from "react-native-passkey";
 import keypassABI from '../abis/keypass.json';
 import { entrypointContract, simpleAccountAbi, walletFactoryContract } from '../utils/contracts';
 import { VITE_ENTRYPOINT } from '../utils/constants';
+// import { Approve } from '../views/Approve';
 
 export function CreateVirtualScreen({ navigation }) {
     const { isConnected, address } = useAccount();
@@ -56,7 +57,9 @@ export function CreateVirtualScreen({ navigation }) {
             });
             await handleSign(optionsResponse)
             if (verifyRes.status === 200) {
-                Alert.alert("All good", "success!");
+                // Alert.alert("All good", "success!");
+                //@todo approve
+                navigation.navigate('Home');
             }
         } catch (error) {
             // console.log("error")
@@ -147,12 +150,10 @@ export function CreateVirtualScreen({ navigation }) {
         // console.log("guardian count:", await keypassContract.guardianCount())
         console.log('TO SIGN', { userOpHash });
 
-        // const loginPasskeyId = localStorage.getItem(`${address}_passkeyId`);
-        // const signature = loginPasskeyId
-        //     ? await signUserOp(userOpHash, loginPasskeyId, passkey)
-        //     : await signUserOpWithCreate(userOpHash, (address as string), passkey);
-
-        const signature = await signUserOpWithCreate(userOpHash, (address as string), passkey);
+        let loginPasskeyId = await AsyncStorage.getItem(`${address}_passkeyId`);
+        const signature = loginPasskeyId
+            ? await signUserOp(userOpHash, loginPasskeyId, passkey)
+            : await signUserOpWithCreate(userOpHash, (address as string), passkey);
 
         if (!signature) throw new Error('Signature failed');
         const signedUserOp: IUserOperation = {
@@ -198,6 +199,15 @@ export function CreateVirtualScreen({ navigation }) {
         logOut();
     }, [isConnected]);
 
+    if (transactionStatus == "waiting") {
+        return (
+            <SafeAreaView style={styles.container}>
+                <Text style={styles.title}>Creating Virtual Card...</Text>
+                <ActivityIndicator size="large" />
+            </SafeAreaView>
+        )
+    }
+
     return (
         <SafeAreaView style={[styles.container, styles.dark]}>
             <Text style={styles.title} variant="large-600">
@@ -214,7 +224,7 @@ export function CreateVirtualScreen({ navigation }) {
                     <Picker.Item label="GHO" value="GHO" />
                     <Picker.Item label="sDAI" value="sDAI" />
                 </Picker>
-                <Text style={styles.label}>Total Value</Text>
+                <Text style={styles.label}>Total Allowance</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Total Value"
@@ -222,7 +232,7 @@ export function CreateVirtualScreen({ navigation }) {
                     value={totalValue}
                     onChangeText={setTotalValue}
                 />
-                <Text style={styles.label}>Allowance</Text>
+                <Text style={styles.label}>Daily Allowance</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Allowance"
@@ -233,8 +243,9 @@ export function CreateVirtualScreen({ navigation }) {
             </FlexView>
             <FlexView style={styles.buttonContainer}>
                 <Button onPress={handleCreate}>
-                    Create
+                    Create Wallet
                 </Button>
+                {/* <Approve navigation={navigation} /> */}
             </FlexView>
         </SafeAreaView>
     );
@@ -245,13 +256,13 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#FFFFFF',
+        // backgroundColor: '#FFFFFF',
     },
     buttonContainer: {
         gap: 4,
     },
     dark: {
-        backgroundColor: '#588C3C',
+        // backgroundColor: '#588C3C',
     },
     title: {
         marginBottom: 40,
