@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, TextInput, View, Alert } from 'react-native';
+import { SafeAreaView, StyleSheet, TextInput, View, Alert, Image } from 'react-native';
 
 import { Button } from './Button';
 import { Web3Modal, W3mButton } from '@web3modal/wagmi-react-native';
@@ -33,6 +33,10 @@ export function MerchantLoginScreen({ navigation }) {
 
     return (
         <SafeAreaView style={[styles.container, styles.dark]}>
+            <Image
+                source={require('./pepe.png')} // Replace with your image path
+                style={styles.image}
+            />
             <Text style={styles.title} variant="large-600">
                 PePay
             </Text>
@@ -93,6 +97,11 @@ const styles = StyleSheet.create({
     },
     dark: {
         backgroundColor: '#588C3C',
+    },
+    image: {
+        width: '100%', // Adjust width as needed
+        height: 200,    // Adjust height as needed
+        resizeMode: 'contain' // or 'cover', based on your requirement
     },
     title: {
         marginBottom: 40,

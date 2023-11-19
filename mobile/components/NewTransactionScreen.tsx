@@ -64,6 +64,13 @@ export function NewTransactionScreen({ navigation }) {
                 if (payload.includes("txdata:")) {
                     setTxDataRecieved(true)
                     setStatus("Recieved Transaction Data")
+                    //@todo watch monerium transfer
+                    // if its not in EURE then redirect back to merchant home
+                    let monerium = false;
+                    if (monerium) {
+                        //
+                    }
+                    navigation.navigate('MerchantHome')
                     console.log("txdata found")
                 }
             });

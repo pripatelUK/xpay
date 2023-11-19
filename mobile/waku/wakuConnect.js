@@ -31,21 +31,18 @@ export async function startNode() {
     if (!nodeStarted) {
         await newNode(null);
         await start();
+
+        await relaySubscribe();
+        await connectPeers();
     }
     console.log('The node ID:', await peerID());
-
-    await relaySubscribe();
 }
 
 export async function connectPeers() {
-    let enough = await relayEnoughPeers();
-    console.log('enoughPeers?', enough);
-    console.log('addresses', await listenAddresses());
-    console.log('connecting...');
-    if (enough) {
-        console.log("already connected!")
-        return
-    }
+    // if (enough) {
+    //     console.log("already connected!")
+    //     return
+    // }
 
     try {
         await connect(
@@ -65,6 +62,14 @@ export async function connectPeers() {
         console.log('Could not connect to peers');
     }
     console.log('connected!');
+
+    // DNS Discovery
+    console.log('Retrieving Nodes using DNS Discovery');
+    const dnsDiscoveryResult = await dnsDiscovery(
+        'enrtree://AO47IDOLBKH72HIZZOXQP6NMRESAN7CHYWIBNXDXWRJRZWLODKII6@test.wakuv2.nodes.status.im',
+        '1.1.1.1'
+    );
+    console.log(dnsDiscoveryResult);
 }
 
 export async function sendMessage(myContentTopic, str) {

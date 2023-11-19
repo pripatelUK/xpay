@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect } from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Image } from 'react-native';
 
 import { Button } from './Button';
 
@@ -32,14 +32,15 @@ export function LoginScreen({ navigation }: any) {
     }, [isConnected]);
     return (
         <SafeAreaView style={[styles.container, styles.dark]}>
+            <Image
+                source={require('./pepe.png')} // Replace with your image path
+                style={styles.image}
+            />
             <Text style={styles.title} variant="large-600">
                 PePay
             </Text>
             <FlexView style={styles.buttonContainer}>
                 <W3mButton balance="show" />
-                {/* <SignMessage /> */}
-                {/* <SendTransaction /> */}
-                {/* <ReadContract /> */}
                 <Button
                     onPress={async () => {
                         navigation.navigate('MerchantLogin');
@@ -65,6 +66,11 @@ const styles = StyleSheet.create({
     },
     dark: {
         backgroundColor: '#588C3C',
+    },
+    image: {
+        width: '100%', // Adjust width as needed
+        height: 200,    // Adjust height as needed
+        resizeMode: 'contain' // or 'cover', based on your requirement
     },
     title: {
         marginBottom: 40,
