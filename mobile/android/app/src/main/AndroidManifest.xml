@@ -78,6 +78,14 @@
         <!-- <data android:scheme="https" /> -->
         <!-- <data android:host="pripateluk.github.io" /> -->
       </intent-filter>
+      <intent-filter>
+          <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+          <category android:name="android.intent.category.DEFAULT"/>
+        <data android:scheme="https"
+                    android:host="eth.vrfy.ch"
+        />
+                    <!-- android:pathPrefix="/index.html" -->
+      </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>
   </application>
