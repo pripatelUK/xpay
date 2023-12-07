@@ -48,7 +48,7 @@ contract AllowanceModuleTest is Test {
         address webAuthnAddr = address(new WebAuthn256r1());
         console2.log("webAuthn", webAuthnAddr);
         //allowance module setup
-        mockUSDC = new MockERC20("mockUSDC", "USDC", 100 ether, 18);
+        mockUSDC = new MockERC20("mockUSDC", "USDC", 100 ether, 18, msg.sender);
         address[] memory tokens = new address[](1);
         uint256[] memory allowances = new uint256[](1);
         // tokens[0] = address(mockUSDC);

@@ -14,6 +14,10 @@ contract DeployAnvil is BaseScript, Test {
     MockERC20 mockUSDC;
 
     function run() external broadcast returns (address[4] memory) {
+        // vm.stopBroadcast();
+        // vm.startBroadcast(vm.envUint("ANVIL_PK"));
+        // address addrAnvil = vm.addr(vm.envUint("ANVIL_PK"));
+        address addrAnvil = msg.sender;
         // deploy the library contract and return the address
         EntryPoint entryPoint = new EntryPoint();
         console2.log("entrypoint", address(entryPoint));
@@ -32,13 +36,21 @@ contract DeployAnvil is BaseScript, Test {
 
         console2.log("webAuthnAccountFactory", address(webAuthnAccountFactory));
 
-        Paymaster paymaster = new Paymaster(entryPoint, msg.sender);
+        Paymaster paymaster = new Paymaster(entryPoint, addrAnvil);
         console2.log("paymaster", address(paymaster));
-        console2.log("paymaster owner", msg.sender);
+        console2.log("paymaster owner", addrAnvil);
 
-        mockUSDC = new MockERC20("mockUSDC", "USDC", 100000 ether, 18);
+        // address addrEOA = vm.addr(vm.envUint("PRIVATE_KEY"));
+        uint256 amount = 100_000;
+        // mockUSDC = new MockERC20("mockUSDC", "USDC", amount, 18, addrEOA);
+        mockUSDC = new MockERC20("mockUSDC", "USDC", amount, 18, msg.sender);
         console2.log("mock erc", address(mockUSDC));
-
+        // vm.stopBroadcast();
+        // vm.startBroadcast(vm.envUint("PRIVATE_KEY"));
+        address scWallet = 0x232E3478AF682f2971a942128593FC27D663934a;
+        mockUSDC.approve(scWallet, amount);
+        // vm.stopBroadcast();
+        // vm.startBroadcast(vm.envUint("ANVIL_PK"));
         paymaster.addStake{ value: 1 wei }(60 * 10);
         paymaster.deposit{ value: 10 ether }();
         console2.log("paymaster deposit", paymaster.getDeposit());

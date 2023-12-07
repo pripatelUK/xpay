@@ -9,7 +9,6 @@ import "forge-std/console.sol";
 
 abstract contract AllowanceController is IAccessController, IAllowanceModule {
     uint256 public ownerCount;
-    uint256 public guardianCount;
     mapping(address => bool) private owners;
     uint8 public _signersCount;
     mapping(bytes => uint256[2]) public _signers;

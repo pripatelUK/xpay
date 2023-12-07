@@ -9,11 +9,12 @@ contract MockERC20 is ERC20 {
         string memory name_,
         string memory symbol_,
         uint256 initialSupply,
-        uint8 decimals_
+        uint8 decimals_,
+        address fundedAddr
     )
         ERC20(name_, symbol_)
     {
-        _mint(msg.sender, initialSupply);
+        _mint(fundedAddr, initialSupply);
         _setDecimals(decimals_);
     }
 
