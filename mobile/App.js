@@ -49,12 +49,12 @@ const projectId = '49a082ffca38748d2ef8acceca12a92e'
 
 // 2. Create config
 const metadata = {
-  name: 'PePay',
-  description: 'PePay',
-  url: 'https://pepay.io',
+  name: 'CrossPay',
+  description: 'CrossPay',
+  url: 'https://crosspay.xyz',
   icons: ['https://avatars.githubusercontent.com/u/37784886'],
   redirect: {
-    native: 'pepay://',
+    native: 'crosspay://',
     // universal: 'YOUR_APP_UNIVERSAL_LINK.com'
   },
 };

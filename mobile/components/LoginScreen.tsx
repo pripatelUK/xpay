@@ -32,12 +32,12 @@ export function LoginScreen({ navigation }: any) {
     }, [isConnected]);
     return (
         <SafeAreaView style={[styles.container, styles.dark]}>
-            <Image
-                source={require('./pepe.png')} // Replace with your image path
+            {/* <Image
+                source={require('../assets/pepe.png')} // Replace with your image path
                 style={styles.image}
-            />
+            /> */}
             <Text style={styles.title} variant="large-600">
-                PePay
+                CrossPay
             </Text>
             <FlexView style={styles.buttonContainer}>
                 <W3mButton balance="show" />
@@ -65,7 +65,8 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     dark: {
-        backgroundColor: '#588C3C',
+        // backgroundColor: '#588C3C',
+        backgroundColor: '#375bd2',
     },
     image: {
         width: '100%', // Adjust width as needed

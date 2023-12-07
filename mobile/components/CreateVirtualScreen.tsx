@@ -27,7 +27,7 @@ export function CreateVirtualScreen({ navigation }) {
     const handleCreate = async () => {
         console.log("lol")
         try {
-            // console.log(api)
+
             const res = await api.post("/register-options", {
                 email: address,
                 name: "1"
@@ -63,7 +63,7 @@ export function CreateVirtualScreen({ navigation }) {
             // console.log("error")
             // Alert.alert("Error", "bad");
 
-            // console.log(JSON.stringify(error));
+            console.log(JSON.stringify(error));
             // console.log(error.stack);
         }
     };

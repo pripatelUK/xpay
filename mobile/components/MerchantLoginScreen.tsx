@@ -33,12 +33,12 @@ export function MerchantLoginScreen({ navigation }) {
 
     return (
         <SafeAreaView style={[styles.container, styles.dark]}>
-            <Image
-                source={require('./pepe.png')} // Replace with your image path
+            {/* <Image
+                source={require('../assets/pepe.png')} // Replace with your image path
                 style={styles.image}
-            />
+            /> */}
             <Text style={styles.title} variant="large-600">
-                PePay
+                CrossPay
             </Text>
             <FlexView style={styles.inputContainer}>
                 {!isVerifying ? (
