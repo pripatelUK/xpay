@@ -8,23 +8,14 @@ import { IRouterClient } from "@chainlink/contracts-ccip/src/v0.8/ccip/interface
 import { Client } from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
 import { CCIPReceiver } from "@chainlink/contracts-ccip/src/v0.8/ccip/applications/CCIPReceiver.sol";
 
-contract SEPAPayments is Ownable, CCIPReceiver {
+contract SEPAReceiver is Ownable, CCIPReceiver {
     IERC20 public euro;
 
+    // mapping(uint256 => bool) public completedPayments;
+    bytes32[] public pendingPaymentIds;
+
+    // Struct to hold details of a payment.
     struct Payment {
-        address merchant;
-        string description;
-        uint256 timestamp;
-    }
-
-    mapping(uint256 => Payment) public payments;
-    mapping(uint256 => bool) public completedPayments;
-    uint256[] public pendingPaymentIds;
-
-    // uint256 public paymentCount;
-
-    // Struct to hold details of a message.
-    struct Message {
         uint64 sourceChainSelector; // The chain selector of the source chain.
         address sender; // The address of the sender.
         string message; // The content of the message.
@@ -33,16 +24,17 @@ contract SEPAPayments is Ownable, CCIPReceiver {
     }
 
     // Storage variables.
-    bytes32[] public receivedMessages; // Array to keep track of the IDs of received messages.
-    mapping(bytes32 => Message) public messageDetail; // Mapping from message ID to Message struct, storing details of
+    bytes32[] public receivedPayments; // Array to keep track of the IDs of received messages.
+    mapping(bytes32 => Payment) public paymentDetail; // Mapping from message ID to Message struct, storing details of
         // each received message.
+    mapping(bytes32 => bool) public completedPayments;
 
     // Event emitted when a message is received from another chain.
     // The chain selector of the source chain.
     // The address of the sender from the source chain.
     // The message that was received.
     // The token amount that was received.
-    event MessageReceived( // The unique ID of the message.
+    event PaymentReceived( // The unique ID of the message.
         bytes32 indexed messageId,
         uint64 indexed sourceChainSelector,
         address sender,
@@ -55,18 +47,9 @@ contract SEPAPayments is Ownable, CCIPReceiver {
         euro = IERC20(_tokenAddress);
     }
 
-    // Function to receive a new payment record to process
-    // function processPayment(uint256 _amount, string memory _description) public onlyOwner {
-    //     payments[paymentCount] =
-    //         Payment({ merchant: msg.sender, description: _description, timestamp: block.timestamp });
-
-    //     pendingPaymentIds.push(paymentCount);
-    //     paymentCount++;
-    // }
-
     /// handle a received euro payment
     function _ccipReceive(Client.Any2EVMMessage memory any2EvmMessage) internal override {
-        bytes32 messageId = any2EvmMessage.messageId; // fetch the messageId
+        bytes32 paymentId = any2EvmMessage.messageId; // fetch the messageId
         uint64 sourceChainSelector = any2EvmMessage.sourceChainSelector; // fetch the source chain identifier (aka
             // selector)
         address sender = abi.decode(any2EvmMessage.sender, (address)); // abi-decoding of the sender address
@@ -76,15 +59,15 @@ contract SEPAPayments is Ownable, CCIPReceiver {
         uint256 amount = tokenAmounts[0].amount; // we expect one token to be transfered at once but of course, you can
             // transfer several tokens.
         string memory message = abi.decode(any2EvmMessage.data, (string)); // abi-decoding of the sent string message
-        receivedMessages.push(messageId);
-        Message memory detail = Message(sourceChainSelector, sender, message, token, amount);
-        messageDetail[messageId] = detail;
+        receivedPayments.push(paymentId);
+        Payment memory detail = Payment(sourceChainSelector, sender, message, token, amount);
+        paymentDetail[paymentId] = detail;
 
-        emit MessageReceived(messageId, sourceChainSelector, sender, message, tokenAmounts[0]);
+        emit PaymentReceived(paymentId, sourceChainSelector, sender, message, tokenAmounts[0]);
     }
 
     // Function for the owner to send the specified ERC20 token from this contract to another address
-    function sendEurosToMerchant(address _to, uint256 _amount, uint256 _paymentId) public onlyOwner {
+    function sendEurosToMerchant(address _to, uint256 _amount, bytes32 _paymentId) public onlyOwner {
         require(euro.balanceOf(address(this)) >= _amount, "Insufficient euros");
         require(!completedPayments[_paymentId], "Payment already completed");
 
@@ -102,7 +85,7 @@ contract SEPAPayments is Ownable, CCIPReceiver {
     }
 
     // Function to list all pending (not completed) payment IDs
-    function listPendingPayments() public view returns (uint256[] memory) {
-        return pendingPaymentIds;
-    }
+    // function listPendingPayments() public view returns (uint256[] memory) {
+    //     return pendingPaymentIds;
+    // }
 }
