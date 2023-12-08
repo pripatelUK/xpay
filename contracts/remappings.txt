@@ -5,3 +5,5 @@ forge-std/=lib/forge-std/src/
 solady/=lib/solady/
 @openzeppelin/=lib/openzeppelin-contracts/
 @account-abstraction/=lib/account-abstraction/
+@chainlink/contracts/=node_modules/@chainlink/contracts
+@chainlink/contracts-ccip/=node_modules/@chainlink/contracts-ccip
