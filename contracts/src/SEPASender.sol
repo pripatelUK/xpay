@@ -101,4 +101,9 @@ contract SEPASender is OwnerIsCreator {
         // Return the message ID
         return messageId;
     }
+
+    /// @notice Fallback function to allow the contract to receive Ether.
+    /// @dev This function has no function body, making it a default function for receiving Ether.
+    /// It is automatically called when Ether is sent to the contract without any data.
+    receive() external payable { }
 }

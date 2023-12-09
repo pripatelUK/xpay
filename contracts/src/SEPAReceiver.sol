@@ -9,10 +9,11 @@ import { Client } from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client
 import { CCIPReceiver } from "@chainlink/contracts-ccip/src/v0.8/ccip/applications/CCIPReceiver.sol";
 
 contract SEPAReceiver is Ownable, CCIPReceiver {
+    error NoMessageReceived(); // Used when trying to access a message but no messages have been received.
+
     IERC20 public euro;
 
     // mapping(uint256 => bool) public completedPayments;
-    bytes32[] public pendingPaymentIds;
 
     // Struct to hold details of a payment.
     struct Payment {
@@ -25,6 +26,7 @@ contract SEPAReceiver is Ownable, CCIPReceiver {
 
     // Storage variables.
     bytes32[] public receivedPayments; // Array to keep track of the IDs of received messages.
+    bytes32[] public pendingPaymentIds;
     mapping(bytes32 => Payment) public paymentDetail; // Mapping from message ID to Message struct, storing details of
         // each received message.
     mapping(bytes32 => bool) public completedPayments;
@@ -73,19 +75,34 @@ contract SEPAReceiver is Ownable, CCIPReceiver {
 
         require(euro.transfer(_to, _amount), "Transfer failed");
         completedPayments[_paymentId] = true;
-
-        // Remove payment ID from pending payments
-        for (uint256 i = 0; i < pendingPaymentIds.length; i++) {
-            if (pendingPaymentIds[i] == _paymentId) {
-                pendingPaymentIds[i] = pendingPaymentIds[pendingPaymentIds.length - 1];
-                pendingPaymentIds.pop();
-                break;
-            }
-        }
     }
 
-    // Function to list all pending (not completed) payment IDs
-    // function listPendingPayments() public view returns (uint256[] memory) {
-    //     return pendingPaymentIds;
-    // }
+    function getLastReceivedMessageDetails()
+        external
+        view
+        returns (
+            bytes32 messageId,
+            uint64 sourceChainSelector,
+            address sender,
+            string memory message,
+            address token,
+            uint256 amount
+        )
+    {
+        // Revert if no messages have been received
+        if (receivedPayments.length == 0) revert NoMessageReceived();
+
+        // Fetch the last received message ID
+        messageId = receivedPayments[receivedPayments.length - 1];
+
+        // Fetch the details of the last received message
+        Payment memory detail = paymentDetail[messageId];
+
+        return (messageId, detail.sourceChainSelector, detail.sender, detail.message, detail.token, detail.amount);
+    }
+
+    /// @notice Fallback function to allow the contract to receive Ether.
+    /// @dev This function has no function body, making it a default function for receiving Ether.
+    /// It is automatically called when Ether is sent to the contract without any data.
+    receive() external payable { }
 }
