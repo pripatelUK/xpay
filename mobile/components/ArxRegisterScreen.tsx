@@ -1,10 +1,10 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage'; import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, TextInput, View, Button, Alert } from 'react-native';
+import { SafeAreaView, StyleSheet, TextInput, View, Alert } from 'react-native';
 
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { execHaloCmdRN } from '@arx-research/libhalo/api/react-native.js';
-
+import { Button } from './Button';
 import { FlexView, Text } from '@web3modal/ui-react-native';
 
 export function ArxRegisterScreen({ navigation }) {
@@ -63,22 +63,28 @@ export function ArxRegisterScreen({ navigation }) {
         <SafeAreaView style={[styles.container, styles.dark]}>
             {!isNfcReady ? (
                 <>
-                    <Text style={styles.title} variant="large-600">
-                        Enter Your IBAN (Optional)
-                    </Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter IBAN"
-                        value={iban}
-                        onChangeText={setIban}
-                    />
-                    <Button title="Submit" onPress={handleIbanSubmit} />
-                    <Button title="Skip" onPress={handleSkip} />
+                    <FlexView style={styles.inputContainer}>
+                        <Text style={styles.title} variant="large-600">
+                            Accept Bank Transfers
+                        </Text>
+                        <Text style={styles.label}>Enter IBAN</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="IBAN 1234 4567..."
+                            value={iban}
+                            onChangeText={setIban}
+                        />
+                        <Button onPress={handleIbanSubmit}>
+                            Next
+                        </Button>
+                        {/* <Button title="Skip" onPress={handleSkip} /> */}
+
+                    </FlexView>
                 </>
             ) : (
                 <>
                     <Text style={styles.title} variant="large-600">
-                        NFC Login
+                        Register NFC
                     </Text>
                     <Text style={styles.title} variant="large-600">
                         SCAN NOW
@@ -94,22 +100,35 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#FFFFFF',
+        // backgroundColor: '#FFFFFF',
     },
     input: {
         height: 40,
-        borderColor: 'gray',
+        borderColor: '#47a1ff', // Changed to blue
         borderWidth: 1,
         padding: 10,
-        width: '80%',
         marginBottom: 20,
+        color: '#fff',
+        borderRadius: 5, // Added to slightly round the edges
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#fff',
+        marginBottom: 10,
     },
     title: {
+        textAlign: 'center',
         marginBottom: 40,
         fontSize: 30,
     },
     dark: {
-        backgroundColor: '#588C3C',
+        backgroundColor: '#375bd2',
+    },
+    inputContainer: {
+        width: '100%',
+        paddingHorizontal: 20,
+        marginBottom: 20,
     },
     // ... other styles if needed
 });

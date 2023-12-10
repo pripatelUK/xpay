@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
-import { View, Text, ActivityIndicator, Button, SafeAreaView, StyleSheet, TextInput, Alert } from 'react-native';
+import { View, Text, ActivityIndicator, SafeAreaView, StyleSheet, TextInput, Alert } from 'react-native';
 import { startNode, connectPeers, sendMessage, formatMessage } from '../waku/wakuConnect';
 import { useAccount } from 'wagmi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+import { Button } from './Button';
 
 import { Picker } from '@react-native-picker/picker';
 
@@ -106,7 +109,9 @@ export function CustomerTransactionScreen({ navigation }) {
             .useMiddleware(Presets.Middleware.getGasPrice(provider))
             .setCallData(
                 simpleAccountAbi.encodeFunctionData('executeBatch', [
-                    [walletAddress], [0], [keypassContract.interface.encodeFunctionData('setDailyAllowance', ["0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9", ethers.utils.parseEther('1000')])]
+                    // pay(address,uint256,address,string)
+                    // function pay(address tokenAddr, uint256 amount, address customerAddr, string calldata message)
+                    [walletAddress], [0], [keypassContract.interface.encodeFunctionData('pay', ["0xD21341536c5cF5EB1bcb58f6723cE26e8D8E90e4", 1616, "0x4c4AD6820d4F7E57f48546948026754bD1dF289f", "0xcc0f309170261e186efd9504361b8a963d945338"])]
                 ]),
             )
             .setNonce(await entrypointContract.getNonce(walletAddress, 0));
@@ -239,7 +244,7 @@ export function CustomerTransactionScreen({ navigation }) {
     // const topic = '/merchant/0xcc0f309170261e186efd9504361b8a963d945338'; // The topic you want to subscribe to
 
     useEffect(() => {
-        const ws = new WebSocket('ws://192.168.1.102:3010'); // Replace with your server's IP and port
+        const ws = new WebSocket('ws://192.168.23.58:3010'); // Replace with your server's IP and port
 
         ws.onopen = async () => {
             // Subscribe to a topic when the connection is opened
@@ -292,21 +297,25 @@ export function CustomerTransactionScreen({ navigation }) {
                 <Text style={styles.title}>{status}</Text>
                 <Text style={styles.price}>{"15 EUR"}</Text>
                 <View style={styles.inputRow}>
-                    <Text style={styles.text}>{formatCurrency("16.38")}</Text>
+                    <Text style={styles.text}>{formatCurrency("16.16")}</Text>
                     <Picker
                         itemStyle={{ height: 44 }}
                         selectedValue={currency}
                         style={styles.picker}
                         onValueChange={(itemValue) => setCurrency(itemValue)}
                     >
-                        <Picker.Item label="GHO" value="GHO" />
                         <Picker.Item label="USDC" value="USDC" />
+                        <Picker.Item label="GHO" value="GHO" />
                         <Picker.Item label="sDAI" value="sDAI" />
                         {/* Add more currencies as needed */}
                     </Picker>
                 </View>
-                <Button title="Back" onPress={() => setRequestingTransaction(false)} />
-                <Button title="Pay" onPress={handlePasskey} />
+                {/* <Button onPress={() => setRequestingTransaction(false)}>
+                    Back
+                </Button> */}
+                <Button onPress={handlePasskey}>
+                    Pay
+                </Button>
             </SafeAreaView>
         );
     }
@@ -315,7 +324,9 @@ export function CustomerTransactionScreen({ navigation }) {
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Text style={styles.title}>{status}</Text>
             <ActivityIndicator size="large" />
-            <Button title="HOME" onPress={() => navigation.navigate('Home')} />
+            <Button onPress={() => navigation.navigate('Home')}>
+                HOME
+            </Button>
         </View>
     );
 };

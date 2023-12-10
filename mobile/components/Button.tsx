@@ -43,14 +43,17 @@ export const Button = ({
 
 const styles = StyleSheet.create({
     button: {
+        backgroundColor: '#47a1ff',
+        borderColor: `#000000`,
+        borderStyle: 'solid',
         alignSelf: 'stretch',
         alignItems: 'center',
         justifyContent: 'center',
-        height: 50,
+        height: 30,
         margin: 20,
-        borderRadius: 6,
-        elevation: 3,
-        backgroundColor: '#007AFF',
+        borderRadius: 20,
+        // elevation: 3,
+        // backgroundColor: '#007AFF',
     },
     buttonText: {
         fontSize: 16,
@@ -58,5 +61,6 @@ const styles = StyleSheet.create({
         letterSpacing: 0.25,
         color: 'white',
         fontWeight: '500',
+        // width: 160
     },
 });

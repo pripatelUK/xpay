@@ -100,7 +100,7 @@ export function NewTransactionScreen({ navigation }) {
                 <Text style={styles.title}>{status}</Text>
                 <ActivityIndicator size="large" />
                 <Text style={styles.price}>{formatCurrency(amount)} {currency}</Text>
-                <Button title="Back" onPress={() => setRequestingTransaction(false)} />
+                <Button title="Cancel" onPress={() => setRequestingTransaction(false)} />
             </SafeAreaView>
         );
     }

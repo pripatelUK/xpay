@@ -63,10 +63,12 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         gap: 4,
+        width: 200
     },
     dark: {
         // backgroundColor: '#588C3C',
         backgroundColor: '#375bd2',
+        // backgroundColor: '#47a1ff',
     },
     image: {
         width: '100%', // Adjust width as needed

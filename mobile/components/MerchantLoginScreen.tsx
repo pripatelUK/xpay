@@ -18,7 +18,7 @@ export function MerchantLoginScreen({ navigation }) {
     };
 
     const verifyPinCode = async () => {
-        if (pinCode === '0000') {
+        if (pinCode === '7890') {
             // Pin code is correct
             await AsyncStorage.setItem('@phone_number', phoneNumber);
             // Alert.alert("Pin Verified", "Phone number stored successfully.");
@@ -43,28 +43,31 @@ export function MerchantLoginScreen({ navigation }) {
             <FlexView style={styles.inputContainer}>
                 {!isVerifying ? (
                     <>
+
+                        <Text style={styles.label}>Enter Phone Number</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="Enter Phone Number"
+                            placeholder="07847392019"
                             value={phoneNumber}
                             onChangeText={setPhoneNumber}
                             keyboardType="phone-pad"
                         />
                         <Button onPress={handlePhoneNumberSubmit}>
-                            Get Pin Code
+                            Get Code
                         </Button>
                     </>
                 ) : (
                     <>
+                        <Text style={styles.label}>Enter Code</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="Enter Pin Code"
+                            placeholder="1234"
                             value={pinCode}
                             onChangeText={setPinCode}
                             keyboardType="number-pad"
                         />
                         <Button onPress={verifyPinCode}>
-                            Verify Pin
+                            Verify Code
                         </Button>
                     </>
                 )}
@@ -87,16 +90,24 @@ const styles = StyleSheet.create({
     },
     input: {
         height: 40,
-        borderColor: 'gray',
+        borderColor: '#47a1ff', // Changed to blue
         borderWidth: 1,
         padding: 10,
         marginBottom: 20,
+        color: '#fff',
+        borderRadius: 5, // Added to slightly round the edges
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#fff',
+        marginBottom: 10,
     },
     buttonContainer: {
         gap: 4,
     },
     dark: {
-        backgroundColor: '#588C3C',
+        backgroundColor: '#375bd2',
     },
     image: {
         width: '100%', // Adjust width as needed

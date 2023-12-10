@@ -94,7 +94,7 @@ export function CreateVirtualScreen({ navigation }) {
             .useMiddleware(Presets.Middleware.getGasPrice(provider))
             .setCallData(
                 simpleAccountAbi.encodeFunctionData('executeBatch', [
-                    [walletAddress], [0], [keypassContract.interface.encodeFunctionData('setDailyAllowance', ["0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9", ethers.utils.parseEther('100')])]
+                    [walletAddress], [0], [keypassContract.interface.encodeFunctionData('setDailyAllowance', ["0xD21341536c5cF5EB1bcb58f6723cE26e8D8E90e4", ethers.utils.parseEther('100')])]
                 ]),
             )
             .setNonce(await entrypointContract.getNonce(walletAddress, 0));
@@ -168,6 +168,7 @@ export function CreateVirtualScreen({ navigation }) {
                 setTransactionStatus('confirmed');
                 console.log({ receipt });
                 //@todo approve
+                let loginPasskeyId = await AsyncStorage.getItem(`${address}_passkeyId`);
                 navigation.navigate('Home');
             })
             .catch((e: any) => {
@@ -201,7 +202,7 @@ export function CreateVirtualScreen({ navigation }) {
             <Text style={styles.title} variant="large-600">
                 Create Virtual Card
             </Text>
-            <W3mButton balance="show" />
+            {/* <W3mButton balance="show" /> */}
             <FlexView style={styles.inputContainer}>
                 <Picker
                     selectedValue={asset}
@@ -212,14 +213,14 @@ export function CreateVirtualScreen({ navigation }) {
                     <Picker.Item label="GHO" value="GHO" />
                     <Picker.Item label="sDAI" value="sDAI" />
                 </Picker>
-                <Text style={styles.label}>Total Allowance</Text>
+                {/* <Text style={styles.label}>Total Allowance</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Total Value"
                     keyboardType="numeric"
                     value={totalValue}
                     onChangeText={setTotalValue}
-                />
+                /> */}
                 <Text style={styles.label}>Daily Allowance</Text>
                 <TextInput
                     style={styles.input}
@@ -229,12 +230,12 @@ export function CreateVirtualScreen({ navigation }) {
                     onChangeText={setAllowance}
                 />
             </FlexView>
-            <FlexView style={styles.buttonContainer}>
-                <Button onPress={handleCreate}>
-                    Create Wallet
-                </Button>
-                {/* <Approve navigation={navigation} /> */}
-            </FlexView>
+            <Button onPress={handleCreate}>
+                Create Wallet
+            </Button>
+            {/* <FlexView style={styles.buttonContainer}> */}
+            {/* <Approve navigation={navigation} /> */}
+            {/* </FlexView> */}
         </SafeAreaView>
     );
 }
@@ -263,14 +264,17 @@ const styles = StyleSheet.create({
     },
     input: {
         height: 40,
-        borderColor: 'gray',
+        borderColor: '#47a1ff', // Changed to blue
         borderWidth: 1,
         padding: 10,
         marginBottom: 20,
+        borderRadius: 5, // Added to slightly round the edges
     },
     picker: {
         height: 50,
         width: '100%',
+        borderColor: 'blue', // Changed to blue
+        borderWidth: 1
     },
     label: {
         fontSize: 16,

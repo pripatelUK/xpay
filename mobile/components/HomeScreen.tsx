@@ -12,6 +12,8 @@ import { FlexView } from '@web3modal/ui-react-native';
 import { useAccount, useDisconnect } from 'wagmi';
 import { Linking } from 'react-native';
 import { getAddress } from '../utils/passkeyUtils';
+import CreditCard from './CreditCard';
+import { useFocusEffect } from '@react-navigation/native';
 
 const mockTransactions = [
     { id: '1', time: '10:00 AM', amount: '100', assetType: 'USDC', deliveryMethod: 'NFC' },
@@ -27,21 +29,45 @@ export function HomeScreen({ navigation }: any) {
     const [passkeyID, setPasskeyID] = React.useState('');
     const [walletAddr, setWalletAddr] = React.useState('');
 
-    useEffect(() => {
-        const checkPasskey = async () => {
-            if (isConnected) {
-                let loginPasskeyId = await AsyncStorage.getItem(`${address}_passkeyId`);
-                console.log(loginPasskeyId)
-                let wallet = await getAddress((address as string));
-                // console.log(wallet)
-                setWalletAddr(wallet);
-                if (loginPasskeyId) {
-                    setPasskeyID(loginPasskeyId)
+    // useEffect(() => {
+    //     const checkPasskey = async () => {
+    //         console.log(isConnected)
+    //         if (isConnected) {
+    //             let loginPasskeyId = await AsyncStorage.getItem(`${address}_passkeyId`);
+    //             console.log("loginPasskeyId", loginPasskeyId)
+    //             let wallet = await getAddress((address as string));
+    //             // console.log(wallet)
+    //             setWalletAddr(wallet);
+    //             if (loginPasskeyId) {
+    //                 setPasskeyID(loginPasskeyId)
+    //             }
+    //         }
+    //     };
+    //     checkPasskey();
+    // }, [isConnected, address, passkeyID]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const checkPasskey = async () => {
+                console.log(isConnected)
+                if (isConnected) {
+                    let loginPasskeyId = await AsyncStorage.getItem(`${address}_passkeyId`);
+                    console.log("loginPasskeyId", loginPasskeyId)
+                    let wallet = await getAddress((address as string));
+                    // console.log(wallet)
+                    setWalletAddr(wallet);
+                    if (loginPasskeyId) {
+                        setPasskeyID(loginPasskeyId)
+                    }
                 }
-            }
-        };
-        checkPasskey();
-    }, [isConnected, address, passkeyID]);
+            };
+            checkPasskey();
+
+            return () => {
+                // Optional cleanup
+            };
+        }, [isConnected, address, passkeyID])
+    );
 
     useEffect(() => {
         const handleDeepLink = async (event) => {
@@ -71,7 +97,10 @@ export function HomeScreen({ navigation }: any) {
     }, [isConnected]);
 
     const logOut = async () => {
-        await AsyncStorage.removeItem(`0x00429a9D2e1102456a90f9110aaA43Fa042cea04_passkeyId`);
+        if (address) {
+            await AsyncStorage.removeItem(`${address}_passkeyId`);
+        }
+        // await AsyncStorage.removeItem(`0x00429a9D2e1102456a90f9110aaA43Fa042cea04_passkeyId`);
         await AsyncStorage.removeItem(passkeyID);
         await AsyncStorage.removeItem('@session_token');
         disconnect()
@@ -92,10 +121,11 @@ export function HomeScreen({ navigation }: any) {
     if (passkeyID) {
         return (
             <SafeAreaView style={styles.container}>
-                <Text style={styles.phoneNumber}>{`Account`}</Text>
-                <Text>Owner: {address}</Text>
-                <Text>Virtual Card: {walletAddr}</Text>
-                <FlatList
+                <Text style={styles.title}>{`Virtual Cards`}</Text>
+                {/* <Text>Owner: {address}</Text> */}
+                {/* <Text>Virtual Card: {walletAddr}</Text> */}
+                <CreditCard cardNumber={walletAddr} cardOwner={address} />
+                <FlatList style={styles.list}
                     data={transactions}
                     renderItem={renderTransaction}
                     keyExtractor={item => item.id}
@@ -109,18 +139,18 @@ export function HomeScreen({ navigation }: any) {
         )
     }
     return (
-        <SafeAreaView>
+        <SafeAreaView style={styles.container}>
+            <W3mButton balance="show" />
             <Text style={styles.title}>
                 Account
             </Text>
-            <FlexView style={styles.buttonContainer}>
-                <Button
-                    onPress={async () => {
-                        navigation.navigate('CreateVirtual');
-                    }}>
-                    Create Virtual Card
-                </Button>
-            </FlexView>
+            <Text style={styles.text}>Create a virtual card that is able to spend an allowance from your crypto wallet.</Text>
+            <Button
+                onPress={async () => {
+                    navigation.navigate('CreateVirtual');
+                }}>
+                Create Virtual Card
+            </Button>
         </SafeAreaView>
     );
 }
@@ -129,6 +159,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginTop: 20,
+        alignItems: 'center',
     },
     phoneNumber: {
         fontSize: 20,
@@ -143,9 +174,17 @@ const styles = StyleSheet.create({
     title: {
         marginBottom: 40,
         fontSize: 30,
+        textAlign: 'center',
     },
-    buttonContainer: {
-        gap: 4,
+    text: {
+        marginBottom: 40,
+        marginLeft: 40,
+        marginRight: 40,
+        fontSize: 20,
+        textAlign: 'center',
+    },
+    list: {
+        width: 400,
     },
     // Add more styles as needed
 });
