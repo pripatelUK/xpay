@@ -4,6 +4,8 @@ pragma solidity ^0.8.19;
 import "./IAccessController.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IAllowanceModule } from "./IAllowanceModule.sol";
+import { ISEPASender } from "./ISEPASender.sol";
+// import { SendCCIP } from "./SendCCIP.sol";
 // import { console2 } from "@forge-std/console2.sol";
 import "forge-std/console.sol";
 
@@ -34,24 +36,25 @@ abstract contract AllowanceController is IAccessController, IAllowanceModule {
     }
 
     //@note amount here is on token native decimals e.g. 1e6 for usdc and 1e18 for gho
-    function pay(address tokenAddr, uint256 amount, address customerAddr, address merchantAddr) external onlyOwner {
+    function pay(address tokenAddr, uint256 amount, address customerAddr, string calldata message) external onlyOwner {
         IERC20Metadata token = IERC20Metadata(tokenAddr);
-        uint256 normalizedAmount = (amount * 10 ** 18) / (10 ** token.decimals());
         uint256 timeDelta = block.timestamp - lastSpend;
         if (timeDelta >= 24 hours) {
-            require(normalizedAmount <= dailyAllowances[tokenAddr], "expenditure is above daily allowance");
+            require(amount <= dailyAllowances[tokenAddr], "expenditure is above daily allowance");
             cumulativeSpent = 0;
-            //@note setup customer approval so the below runs
-            token.transferFrom(customerAddr, merchantAddr, amount);
-            cumulativeSpent += normalizedAmount;
         } else {
             require(
-                cumulativeSpent + normalizedAmount <= dailyAllowances[tokenAddr],
-                "expenditure would be take you above the daily allowance"
+                cumulativeSpent + amount <= dailyAllowances[tokenAddr],
+                "expenditure would take you above the daily allowance"
             );
-            token.transferFrom(customerAddr, merchantAddr, amount);
-            cumulativeSpent += normalizedAmount;
         }
+        uint64 polygon = 12_532_609_583_862_916_517;
+        address sepaSender = address(0xa38b14AF02A08a7Ece8E735872d0937C1607EF6f);
+        address sepaReceiver = address(0x94C1555D5d28E1436B3920C0b880C5700b4793a4);
+        //@note setup customer approval so the below runs
+        token.transferFrom(customerAddr, sepaSender, amount);
+        ISEPASender(sepaSender).sendMessage(polygon, sepaReceiver, message, address(token), amount);
+        cumulativeSpent += amount;
     }
 
     modifier onlyOwnerOrEntryPoint(address _entryPoint) {

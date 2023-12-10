@@ -15,11 +15,12 @@ contract Faucet is Script, Helper {
         address senderAddress = vm.addr(senderPrivateKey);
 
         (address ccipBnm, address ccipLnm) = getDummyTokensFromNetwork(network);
+        address customer = address(0x4c4AD6820d4F7E57f48546948026754bD1dF289f);
 
-        ICCIPToken(ccipBnm).drip(senderAddress);
+        ICCIPToken(ccipBnm).drip(customer);
 
         if (network == SupportedNetworks.ETHEREUM_SEPOLIA) {
-            ICCIPToken(ccipLnm).drip(senderAddress);
+            ICCIPToken(ccipLnm).drip(customer);
         }
 
         vm.stopBroadcast();

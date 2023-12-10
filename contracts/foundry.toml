@@ -36,4 +36,9 @@
 
 [rpc_endpoints]
   localhost = "http://localhost:8545"
-  # sepolia = "https://sepolia.infura.io/v3/${API_KEY_INFURA}"
+  ethereumSepolia = "${ETHEREUM_SEPOLIA_RPC_URL}"
+  ethGoerli = "${ETHEREUM_GOERLI_RPC_URL}"
+  optimismGoerli = "${OPTIMISM_GOERLI_RPC_URL}"
+  avalancheFuji = "${AVALANCHE_FUJI_RPC_URL}"
+  arbitrumTestnet = "${ARBITRUM_TESTNET_RPC_URL}"
+  polygonMumbai = "${POLYGON_MUMBAI_RPC_URL}"

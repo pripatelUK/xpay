@@ -57,7 +57,7 @@ contract AllowanceModuleTest is Test {
         uint256 allowance = 100 ether;
 
         WebAuthnAccountFactory webAuthnAccountFactory =
-            new WebAuthnAccountFactory(entryPoint, webAuthnAddr, 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65);
+            new WebAuthnAccountFactory(entryPoint, webAuthnAddr, 0xa8C9d55b0F734cAadfA2384d553464714b3A6369);
         console2.log("webAuthnAccountFactory", address(webAuthnAccountFactory));
 
         Paymaster paymaster = new Paymaster(entryPoint, msg.sender);
