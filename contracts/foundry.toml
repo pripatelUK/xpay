@@ -42,3 +42,4 @@
   avalancheFuji = "${AVALANCHE_FUJI_RPC_URL}"
   arbitrumTestnet = "${ARBITRUM_TESTNET_RPC_URL}"
   polygonMumbai = "${POLYGON_MUMBAI_RPC_URL}"
+  polygonzkEVM = "${POLYGON_ZKEVM_RPC_URL}"

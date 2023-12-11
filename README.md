@@ -1,5 +1,23 @@
 # CrossPay
 
+
+### Avax Fuji Deployments
+AA Entrypoint: https://testnet.snowtrace.io/address/0x5e937Ddd1a84FA8550eBBEd361dD1D027BA2437B
+WebAuthn256r1.sol: https://testnet.snowtrace.io/address/0x92bFea12cdd5e452eBED0546E4910Fd33061A166
+Paymaster.sol: https://testnet.snowtrace.io/address/0xE6F5566256fC37e2c041350D6707Be244EC1B1E3
+webAuthnAccountFactory: https://testnet.snowtrace.io/address/0xC26648F3D426843D99b6d43065D9855536E8A697
+SEPASender.sol: https://testnet.snowtrace.io/address/0xf06Ac0AE86FFc31041F6D7BCb15BeA2Ec765653D
+
+### Polygon zkEVM Deployments
+AA Entrypoint: https://testnet-zkevm.polygonscan.com/address/0x5e937Ddd1a84FA8550eBBEd361dD1D027BA2437B
+WebAuthn256r1.sol: https://testnet-zkevm.polygonscan.com/address/0x92bFea12cdd5e452eBED0546E4910Fd33061A166
+Paymaster.sol: https://testnet-zkevm.polygonscan.com/address/0xE6F5566256fC37e2c041350D6707Be244EC1B1E3
+webAuthnAccountFactory: https://testnet-zkevm.polygonscan.com/address/0xc26648f3d426843d99b6d43065d9855536e8a697
+
+### Polygon Mumbai CCIP Deployments
+
+SEPAReceiver.sol: 0x94C1555D5d28E1436B3920C0b880C5700b4793a4
+
 ## Inspiration
 
 Merchants globally get charged through the roof for being able to accept Credit Card in their stores. 
