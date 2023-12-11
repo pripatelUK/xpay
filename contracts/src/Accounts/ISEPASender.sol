@@ -21,7 +21,14 @@ interface ISEPASender {
     function messageDetail(bytes32)
         external
         view
-        returns (uint64 sourceChainSelector, address sender, string memory message, address token, uint256 amount);
+        returns (
+            uint64 sourceChainSelector,
+            address sender,
+            address receiver,
+            string memory message,
+            address token,
+            uint256 amount
+        );
     function owner() external view returns (address);
     function receivedMessages(uint256) external view returns (bytes32);
     function sendMessage(

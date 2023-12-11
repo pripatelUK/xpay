@@ -35,6 +35,7 @@ contract SEPASender is OwnerIsCreator {
     struct Message {
         uint64 sourceChainSelector; // The chain selector of the source chain.
         address sender; // The address of the sender.
+        address receiver; // The address of the sender.
         string message; // The content of the message.
         address token; // received token.
         uint256 amount; // received amount.
@@ -98,6 +99,8 @@ contract SEPASender is OwnerIsCreator {
         // Emit an event with message details
         emit MessageSent(messageId, destinationChainSelector, receiver, message, tokenAmount, fees);
 
+        receivedMessages.push(messageId);
+        messageDetail[messageId] = Message(destinationChainSelector, msg.sender, receiver, message, token, amount);
         // Return the message ID
         return messageId;
     }
